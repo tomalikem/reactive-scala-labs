@@ -31,16 +31,16 @@ class TypedOrderManagerIntegrationTest
     orderManager.ask[Any](message).mapTo[TypedOrderManager.Ack].futureValue shouldBe Done
   }
 
-  it should "supervise whole order process" in {
-    val orderManager = testKit.spawn(new TypedOrderManager().start).ref
+  // it should "supervise whole order process" in {
+  //   val orderManager = testKit.spawn(new TypedOrderManager().start).ref
 
-    sendMessage(orderManager, AddItem("rollerblades", _))
+  //   sendMessage(orderManager, AddItem("rollerblades", _))
 
-    sendMessage(orderManager, Buy)
+  //   sendMessage(orderManager, Buy)
 
-    sendMessage(orderManager, SelectDeliveryAndPaymentMethod("paypal", "inpost", _))
+  //   sendMessage(orderManager, SelectDeliveryAndPaymentMethod("paypal", "inpost", _))
 
-    sendMessage(orderManager, ref => Pay(ref))
-  }
+  //   sendMessage(orderManager, ref => Pay(ref))
+  // }
 
 }

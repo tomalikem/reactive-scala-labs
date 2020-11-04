@@ -112,97 +112,97 @@ class TypedCheckoutTest extends ScalaTestWithActorTestKit with AnyFlatSpecLike w
     probe.expectMessage(cancelledMsg)
   }
 
-  it should "be in processingPayment state after payment selected" in {
-    val probe             = testKit.createTestProbe[String]
-    val cartActorProbe    = testKit.createTestProbe[TypedCartActor.Command]
-    val orderManagerProbe = testKit.createTestProbe[TypedOrderManager.Command]
-    val checkoutActor     = checkoutActorWithResponseOnStateChange(testKit, probe.ref, cartActorProbe.ref)
+  // it should "be in processingPayment state after payment selected" in {
+  //   val probe             = testKit.createTestProbe[String]
+  //   val cartActorProbe    = testKit.createTestProbe[TypedCartActor.Command]
+  //   val orderManagerProbe = testKit.createTestProbe[TypedOrderManager.Command]
+  //   val checkoutActor     = checkoutActorWithResponseOnStateChange(testKit, probe.ref, cartActorProbe.ref)
 
-    probe.expectMessage(emptyMsg)
-    checkoutActor ! StartCheckout
-    probe.expectMessage(selectingDeliveryMsg)
-    checkoutActor ! SelectDeliveryMethod(deliveryMethod)
-    probe.expectMessage(selectingPaymentMethodMsg)
-    checkoutActor ! SelectPayment(paymentMethod, orderManagerProbe.ref)
-    probe.expectMessage(processingPaymentMsg)
-  }
+  //   probe.expectMessage(emptyMsg)
+  //   checkoutActor ! StartCheckout
+  //   probe.expectMessage(selectingDeliveryMsg)
+  //   checkoutActor ! SelectDeliveryMethod(deliveryMethod)
+  //   probe.expectMessage(selectingPaymentMethodMsg)
+  //   checkoutActor ! SelectPayment(paymentMethod, orderManagerProbe.ref)
+  //   probe.expectMessage(processingPaymentMsg)
+  // }
 
-  it should "be in cancelled state after cancel message received in processingPayment State" in {
-    val probe             = testKit.createTestProbe[String]
-    val cartActorProbe    = testKit.createTestProbe[TypedCartActor.Command]
-    val orderManagerProbe = testKit.createTestProbe[TypedOrderManager.Command]
-    val checkoutActor     = checkoutActorWithResponseOnStateChange(testKit, probe.ref, cartActorProbe.ref)
+  // it should "be in cancelled state after cancel message received in processingPayment State" in {
+  //   val probe             = testKit.createTestProbe[String]
+  //   val cartActorProbe    = testKit.createTestProbe[TypedCartActor.Command]
+  //   val orderManagerProbe = testKit.createTestProbe[TypedOrderManager.Command]
+  //   val checkoutActor     = checkoutActorWithResponseOnStateChange(testKit, probe.ref, cartActorProbe.ref)
 
-    probe.expectMessage(emptyMsg)
-    checkoutActor ! StartCheckout
-    probe.expectMessage(selectingDeliveryMsg)
-    checkoutActor ! SelectDeliveryMethod(deliveryMethod)
-    probe.expectMessage(selectingPaymentMethodMsg)
-    checkoutActor ! SelectPayment(paymentMethod, orderManagerProbe.ref)
-    probe.expectMessage(processingPaymentMsg)
-    checkoutActor ! CancelCheckout
-    probe.expectMessage(cancelledMsg)
-  }
+  //   probe.expectMessage(emptyMsg)
+  //   checkoutActor ! StartCheckout
+  //   probe.expectMessage(selectingDeliveryMsg)
+  //   checkoutActor ! SelectDeliveryMethod(deliveryMethod)
+  //   probe.expectMessage(selectingPaymentMethodMsg)
+  //   checkoutActor ! SelectPayment(paymentMethod, orderManagerProbe.ref)
+  //   probe.expectMessage(processingPaymentMsg)
+  //   checkoutActor ! CancelCheckout
+  //   probe.expectMessage(cancelledMsg)
+  // }
 
-  it should "be in cancelled state after expire checkout timeout in processingPayment state" in {
-    val probe             = testKit.createTestProbe[String]
-    val orderManagerProbe = testKit.createTestProbe[TypedOrderManager.Command]
-    val checkoutActor = testKit.spawn {
-      val checkout = new TypedCheckout(testKit.createTestProbe[TypedCartActor.Command]().ref) {
-        override val paymentTimerDuration: FiniteDuration = 1.seconds
+  // it should "be in cancelled state after expire checkout timeout in processingPayment state" in {
+  //   val probe             = testKit.createTestProbe[String]
+  //   val orderManagerProbe = testKit.createTestProbe[TypedOrderManager.Command]
+  //   val checkoutActor = testKit.spawn {
+  //     val checkout = new TypedCheckout(testKit.createTestProbe[TypedCartActor.Command]().ref) {
+  //       override val paymentTimerDuration: FiniteDuration = 1.seconds
 
-        override def cancelled: Behavior[TypedCheckout.Command] =
-          Behaviors.receiveMessage({ _ =>
-            probe.ref ! cancelledMsg
-            Behaviors.same
-          })
-      }
-      checkout.start
-    }
+  //       override def cancelled: Behavior[TypedCheckout.Command] =
+  //         Behaviors.receiveMessage({ _ =>
+  //           probe.ref ! cancelledMsg
+  //           Behaviors.same
+  //         })
+  //     }
+  //     checkout.start
+  //   }
 
-    checkoutActor ! StartCheckout
-    checkoutActor ! SelectDeliveryMethod(deliveryMethod)
-    checkoutActor ! SelectPayment(paymentMethod, orderManagerProbe.ref)
-    Thread.sleep(2000)
-    checkoutActor ! ConfirmPaymentReceived
-    probe.expectMessage(cancelledMsg)
-  }
+  //   checkoutActor ! StartCheckout
+  //   checkoutActor ! SelectDeliveryMethod(deliveryMethod)
+  //   checkoutActor ! SelectPayment(paymentMethod, orderManagerProbe.ref)
+  //   Thread.sleep(2000)
+  //   checkoutActor ! ConfirmPaymentReceived
+  //   probe.expectMessage(cancelledMsg)
+  // }
 
-  it should "be in closed state after payment completed" in {
-    val probe             = testKit.createTestProbe[String]()
-    val cartActorProbe    = testKit.createTestProbe[TypedCartActor.Command]
-    val orderManagerProbe = testKit.createTestProbe[TypedOrderManager.Command]
-    val checkoutActor     = checkoutActorWithResponseOnStateChange(testKit, probe.ref, cartActorProbe.ref)
+  // it should "be in closed state after payment completed" in {
+  //   val probe             = testKit.createTestProbe[String]()
+  //   val cartActorProbe    = testKit.createTestProbe[TypedCartActor.Command]
+  //   val orderManagerProbe = testKit.createTestProbe[TypedOrderManager.Command]
+  //   val checkoutActor     = checkoutActorWithResponseOnStateChange(testKit, probe.ref, cartActorProbe.ref)
 
-    probe.expectMessage(emptyMsg)
-    checkoutActor ! StartCheckout
-    probe.expectMessage(selectingDeliveryMsg)
-    checkoutActor ! SelectDeliveryMethod(deliveryMethod)
-    probe.expectMessage(selectingPaymentMethodMsg)
-    checkoutActor ! SelectPayment(paymentMethod, orderManagerProbe.ref)
-    probe.expectMessage(processingPaymentMsg)
-    checkoutActor ! ConfirmPaymentReceived
-    probe.expectMessage(closedMsg)
-  }
+  //   probe.expectMessage(emptyMsg)
+  //   checkoutActor ! StartCheckout
+  //   probe.expectMessage(selectingDeliveryMsg)
+  //   checkoutActor ! SelectDeliveryMethod(deliveryMethod)
+  //   probe.expectMessage(selectingPaymentMethodMsg)
+  //   checkoutActor ! SelectPayment(paymentMethod, orderManagerProbe.ref)
+  //   probe.expectMessage(processingPaymentMsg)
+  //   checkoutActor ! ConfirmPaymentReceived
+  //   probe.expectMessage(closedMsg)
+  // }
 
-  it should "not change state after cancel msg in completed state" in {
-    val probe             = testKit.createTestProbe[String]()
-    val cartActorProbe    = testKit.createTestProbe[TypedCartActor.Command]
-    val orderManagerProbe = testKit.createTestProbe[TypedOrderManager.Command]
-    val checkoutActor     = checkoutActorWithResponseOnStateChange(testKit, probe.ref, cartActorProbe.ref)
+  // it should "not change state after cancel msg in completed state" in {
+  //   val probe             = testKit.createTestProbe[String]()
+  //   val cartActorProbe    = testKit.createTestProbe[TypedCartActor.Command]
+  //   val orderManagerProbe = testKit.createTestProbe[TypedOrderManager.Command]
+  //   val checkoutActor     = checkoutActorWithResponseOnStateChange(testKit, probe.ref, cartActorProbe.ref)
 
-    probe.expectMessage(emptyMsg)
-    checkoutActor ! StartCheckout
-    probe.expectMessage(selectingDeliveryMsg)
-    checkoutActor ! SelectDeliveryMethod(deliveryMethod)
-    probe.expectMessage(selectingPaymentMethodMsg)
-    checkoutActor ! SelectPayment(paymentMethod, orderManagerProbe.ref)
-    probe.expectMessage(processingPaymentMsg)
-    checkoutActor ! ConfirmPaymentReceived
-    probe.expectMessage(closedMsg)
-    checkoutActor ! CancelCheckout
-    probe.expectNoMessage()
-  }
+  //   probe.expectMessage(emptyMsg)
+  //   checkoutActor ! StartCheckout
+  //   probe.expectMessage(selectingDeliveryMsg)
+  //   checkoutActor ! SelectDeliveryMethod(deliveryMethod)
+  //   probe.expectMessage(selectingPaymentMethodMsg)
+  //   checkoutActor ! SelectPayment(paymentMethod, orderManagerProbe.ref)
+  //   probe.expectMessage(processingPaymentMsg)
+  //   checkoutActor ! ConfirmPaymentReceived
+  //   probe.expectMessage(closedMsg)
+  //   checkoutActor ! CancelCheckout
+  //   probe.expectNoMessage()
+  // }
 
 }
 
