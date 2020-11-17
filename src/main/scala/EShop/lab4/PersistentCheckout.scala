@@ -46,6 +46,7 @@ class PersistentCheckout(
       persist(CheckoutStarted) { event =>
         updateState(event)
       }
+    case _ =>
   }
 
   def selectingDelivery(timer: Cancellable): Receive = {
@@ -54,12 +55,12 @@ class PersistentCheckout(
       persist(DeliveryMethodSelected(method)) { event =>
         updateState(event)
       }
-
     case ExpireCheckout | CancelCheckout =>
       timer.cancel()
       persist(CheckoutCancelled) { event =>
         updateState(event)
       }
+    case _ =>
   }
 
   def selectingPaymentMethod(timer: Cancellable): Receive = {
@@ -69,12 +70,12 @@ class PersistentCheckout(
       persist(PaymentStarted(payment)) { event =>
         updateState(event)
       }
-
     case ExpireCheckout | CancelCheckout =>
       timer.cancel()
       persist(CheckoutCancelled) { event =>
         updateState(event)
       }
+    case _ =>
   }
 
   def processingPayment(timer: Cancellable): Receive = {
@@ -84,12 +85,12 @@ class PersistentCheckout(
       persist(CheckoutClosed) { event =>
         updateState(event)
       }
-
     case ExpirePayment | CancelCheckout =>
       timer.cancel()
       persist(CheckoutCancelled) { event =>
         updateState(event)
       }
+    case _ =>
   }
 
   def cancelled: Receive = {

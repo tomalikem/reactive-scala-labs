@@ -42,6 +42,7 @@ class PersistentCartActor(
       persist(ItemAdded(item, Cart.empty)) { event =>
         updateState(event)
       }
+    case _ =>
   }
 
   def nonEmpty(cart: Cart, timer: Cancellable): Receive = {
@@ -49,7 +50,6 @@ class PersistentCartActor(
       persist(ItemAdded(item, cart)) { event =>
         updateState(event)
       }
-
     case RemoveItem(item) if cart.contains(item) && cart.size == 1 =>
       persist(CartEmptied) { event =>
         updateState(event)
@@ -58,18 +58,17 @@ class PersistentCartActor(
       persist(ItemRemoved(item, cart)) { event =>
         updateState(event)
       }
-
     case StartCheckout =>
       timer.cancel()
       val checkout = context.actorOf(PersistentCheckout.props(self, persistenceId + "checkout"), "checkout")
       persist(CheckoutStarted(checkout, cart)) { event =>
         updateState(event)
       }
-
     case ExpireCart =>
       persist(CartExpired) { event =>
         updateState(event)
       }
+    case _ =>
   }
 
   def inCheckout(cart: Cart): Receive = {
@@ -77,11 +76,11 @@ class PersistentCartActor(
       persist(CheckoutCancelled(cart)) { event =>
         updateState(event)
       }
-
     case ConfirmCheckoutClosed =>
       persist(CheckoutClosed) { event =>
         updateState(event)
       }
+    case _ =>
   }
 
   override def receiveRecover: Receive = {
