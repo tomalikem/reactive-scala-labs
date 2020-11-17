@@ -49,8 +49,11 @@ class TypedCartActor {
           case AddItem(item) => nonEmpty(cart.addItem(item), timer)
           case RemoveItem(item) if cart.contains(item) =>
             if (cart.size != 1) nonEmpty(cart.removeItem(item), timer) else empty
-          case StartCheckout => inCheckout(cart)
-          case ExpireCart    => empty
+          case StartCheckout(orderManagerRef) =>
+            val checkout = context.spawn(new TypedCheckout(context.self).start, "typedCheckout")
+            orderManagerRef ! TypedOrderManager.ConfirmCheckoutStarted(checkout)
+            inCheckout(cart)
+          case ExpireCart => empty
       }
     )
 

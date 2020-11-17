@@ -6,7 +6,7 @@ import akka.actor.typed.{ActorRef, Behavior}
 import scala.language.postfixOps
 
 import scala.concurrent.duration._
-import EShop.lab3.TypedOrderManager
+import EShop.lab3.{TypedOrderManager, TypedPayment}
 
 object TypedCheckout {
 
@@ -37,6 +37,9 @@ class TypedCheckout(
   val checkoutTimerDuration: FiniteDuration = 1 seconds
   val paymentTimerDuration: FiniteDuration  = 1 seconds
 
+  var deliveryMethod = ""
+  var paymentMethod  = ""
+
   def start: Behavior[TypedCheckout.Command] =
     Behaviors.receive(
       (context, msg) =>
@@ -57,17 +60,19 @@ class TypedCheckout(
       }
     )
 
-  def selectingPaymentMethod(timer: Cancellable): Behavior[TypedCheckout.Command] =
-    Behaviors.receive(
-      (context, msg) =>
-        msg match {
-          case SelectPayment(method) =>
-            processingPayment(context.scheduleOnce(paymentTimerDuration, context.self, ExpirePayment))
-          case CancelCheckout => cancelled
-          case ExpirePayment  => cancelled
-          case ExpireCheckout => cancelled
-      }
-    )
+  def selectingPaymentMethod(timer: Cancellable): Behavior[TypedCheckout.Command] = Behaviors.receive(
+    (context, msg) =>
+      msg match {
+        case SelectPayment(method: String, orderManagerRef: ActorRef[TypedOrderManager.Command]) =>
+          this.paymentMethod = method
+          val paymentActor = context.spawn(new TypedPayment(method, orderManagerRef, context.self).start, "payment")
+          orderManagerRef ! TypedOrderManager.ConfirmPaymentStarted(paymentActor)
+          processingPayment(context.scheduleOnce(checkoutTimerDuration, context.self, ExpirePayment))
+        case CancelCheckout => cancelled
+        case ExpirePayment  => cancelled
+        case ExpireCheckout => cancelled
+    }
+  )
 
   def processingPayment(timer: Cancellable): Behavior[TypedCheckout.Command] =
     Behaviors.receive(
