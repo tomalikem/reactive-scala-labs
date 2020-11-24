@@ -31,8 +31,8 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
     }
   }
 
-  implicit val itemFormat = jsonFormat1(Item)
-  implicit val queryFormat = jsonFormat1(HttpServer.Query)
+  implicit val itemFormat     = jsonFormat5(Item)
+  implicit val queryFormat    = jsonFormat2(HttpServer.Query)
   implicit val responseFormat = jsonFormat1(HttpServer.Response)
 }
 
@@ -44,7 +44,7 @@ object HttpServerApp extends App {
 class HttpServer extends HttpApp with JsonSupport {
 
   implicit val timeout = Timeout(5 seconds)
-  val config = ConfigFactory.load()
+  val config           = ConfigFactory.load()
 
   val actorSystem = ActorSystem("server", config.getConfig("server").withFallback(config))
   val productCatalog =
