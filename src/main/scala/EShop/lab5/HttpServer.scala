@@ -16,7 +16,7 @@ import spray.json.{DefaultJsonProtocol, JsString, JsValue, JsonFormat}
 
 import scala.concurrent.{Await, Future}
 
-object ProductCatalogHttpServer {
+object HttpServer {
   case class Query(brand: String, productKeyWords: List[String])
   case class Response(products: List[Item])
 }
@@ -32,8 +32,8 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
   }
 
   implicit val itemFormat = jsonFormat5(Item)
-  implicit val queryFormat = jsonFormat2(ProductCatalogHttpServer.Query)
-  implicit val responseFormat = jsonFormat1(ProductCatalogHttpServer.Response)
+  implicit val queryFormat = jsonFormat2(HttpServer.Query)
+  implicit val responseFormat = jsonFormat1(HttpServer.Response)
 }
 
 object HttpServerApp extends App {
@@ -53,7 +53,7 @@ class HttpServer extends HttpApp with JsonSupport {
   override protected def routes: Route = {
     path("search") {
       post {
-        entity(as[ProductCatalogHttpServer.Query]) { query =>
+        entity(as[HttpServer.Query]) { query =>
           val future = productCatalog ? GetItems(query.brand, query.productKeyWords)
           val result = Await.result(future, timeout.duration).asInstanceOf[Items]
 
