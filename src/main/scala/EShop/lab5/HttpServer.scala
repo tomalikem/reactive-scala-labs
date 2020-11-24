@@ -3,7 +3,7 @@ package EShop.lab5
 import java.net.URI
 
 import EShop.lab5.ProductCatalog.{GetItems, Item, Items}
-import EShop.lab5.ProductCatalogHttpServer.Response
+import EShop.lab5.HttpServer.Response
 import akka.actor.ActorSystem
 
 import scala.concurrent.duration._
