@@ -31,8 +31,8 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
     }
   }
 
-  implicit val itemFormat = jsonFormat5(Item)
-  implicit val queryFormat = jsonFormat2(HttpServer.Query)
+  implicit val itemFormat = jsonFormat1(Item)
+  implicit val queryFormat = jsonFormat1(HttpServer.Query)
   implicit val responseFormat = jsonFormat1(HttpServer.Response)
 }
 
