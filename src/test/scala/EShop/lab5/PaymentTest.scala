@@ -1,7 +1,5 @@
 package EShop.lab5
-
-import EShop.lab3.Payment.{DoPayment, PaymentConfirmed}
-import EShop.lab5.Payment.{PaymentRejected, PaymentRestarted}
+import EShop.lab5.Payment.{DoPayment, PaymentConfirmed, PaymentRejected, PaymentRestarted}
 import PaymentServiceServer.PaymentServiceServer
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit, TestProbe}
