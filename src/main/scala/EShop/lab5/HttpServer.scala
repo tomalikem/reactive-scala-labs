@@ -22,7 +22,6 @@ object HttpServer {
 }
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
-  //custom formatter just for example
   implicit val uriFormat = new JsonFormat[java.net.URI] {
     override def write(obj: java.net.URI): spray.json.JsValue = JsString(obj.toString)
     override def read(json: JsValue): URI = json match {
@@ -30,7 +29,6 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
       case _             => throw new RuntimeException("Parsing exception")
     }
   }
-
   implicit val itemFormat     = jsonFormat5(Item)
   implicit val queryFormat    = jsonFormat2(HttpServer.Query)
   implicit val responseFormat = jsonFormat1(HttpServer.Response)
@@ -40,7 +38,6 @@ object HttpServerApp extends App {
   new HttpServer().startServer("localhost", 9000)
 }
 
-/** Just to demonstrate how one can build akka-http based server with JsonSupport */
 class HttpServer extends HttpApp with JsonSupport {
 
   implicit val timeout = Timeout(5 seconds)
@@ -56,7 +53,6 @@ class HttpServer extends HttpApp with JsonSupport {
         entity(as[HttpServer.Query]) { query =>
           val future = productCatalog ? GetItems(query.brand, query.productKeyWords)
           val result = Await.result(future, timeout.duration).asInstanceOf[Items]
-
           complete {
             Future.successful(Response(result.items))
           }
